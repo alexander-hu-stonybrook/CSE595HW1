@@ -170,16 +170,21 @@ let pairwisefilter cmp lst =
 
 (* Question 9 *)
 
-let rec poly_rec plist psum =
-    if plist = [] then
-        psum
-    else
-        poly_rec (List.tl plist) (psum + int_of_float(
-        (float_of_int(fst(List.hd plist))) **
-        (float_of_int(snd(List.hd plist)))
-        ))
+let make_product ptup =
+    fun x -> int_of_float(float_of_int(x) ** float_of_int(snd ptup)) * (fst ptup)
 ;;
 
-let polynomial plist =
-    poly_rec plist 0
+let poly_transform plist =
+    List.map make_product plist
+;;
+
+let rec poly_create_fun input colist psum =
+    if colist = [] then
+        psum
+    else
+        poly_create_fun input (List.tl colist) (psum + ((List.hd colist) input))
+;;
+
+let polynomial inlist =
+    fun x -> poly_create_fun x (poly_transform inlist) 0
 ;;
