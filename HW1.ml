@@ -188,3 +188,22 @@ let rec poly_create_fun input colist psum =
 let polynomial inlist =
     fun x -> poly_create_fun x (poly_transform inlist) 0
 ;;
+
+(* Question 10 *)
+
+let rec add_new_term_to_subsets term n0hold n1hold curlen curset retset =
+    if curset = [] then
+        List.append retset (List.append n0hold n1hold)
+    else if List.length (List.hd curset) = curlen then
+        add_new_term_to_subsets term (List.append n0hold [(List.hd curset)]) (List.append n1hold [(List.append (List.hd curset) [term])]) curlen (List.tl curset) retset
+    else (*if List.length (List.hd curset) = curlen + 1 then*)
+        add_new_term_to_subsets term (List.append n1hold [List.hd curset]) [List.append (List.hd curset) [term]] (curlen + 1) (List.tl curset) (List.append retset n0hold)
+
+let rec iter_all_terms_in_set plist retlist =
+    if plist = [] then
+        retlist
+    else
+        iter_all_terms_in_set (List.tl plist) (add_new_term_to_subsets (List.hd plist) [] [] 0 retlist [])
+
+let powerset plist =
+    iter_all_terms_in_set plist [[]]
