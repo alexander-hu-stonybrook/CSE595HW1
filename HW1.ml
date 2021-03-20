@@ -223,14 +223,14 @@ let possible_inputs = [(true, true); (true, false); (false, true); (false, false
 ;;
 
 (* Returns a true/false for the entire expression *)
-let rec eval_expr a b booltup inexp =
+let rec eval_bool a b booltup inexp =
     match inexp with
         |Lit x1 when x1 = a -> fst booltup
         |Lit x2 when x2 = b -> snd booltup
         |Lit _ -> false (*Shouldn't ever come up*)
-        |Not subexp -> not (eval_expr a b booltup subexp)
-        |And (sub1, sub2) -> (eval_expr a b booltup sub1) && (eval_expr a b booltup sub2)
-        |Or (sub1, sub2) -> (eval_expr a b booltup sub1) || (eval_expr a b booltup sub2)
+        |Not subexp -> not (eval_bool a b booltup subexp)
+        |And (sub1, sub2) -> (eval_bool a b booltup sub1) && (eval_bool a b booltup sub2)
+        |Or (sub1, sub2) -> (eval_bool a b booltup sub1) || (eval_bool a b booltup sub2)
 ;;
 
 let rec check_all_inputs a b inexp blist retlist =
@@ -238,11 +238,35 @@ let rec check_all_inputs a b inexp blist retlist =
         retlist
     else
         check_all_inputs a b inexp (List.tl blist) (List.append retlist
-        [(fst (List.hd blist), snd (List.hd blist), eval_expr a b (List.hd blist) inexp)])
+        [(fst (List.hd blist), snd (List.hd blist), eval_bool a b (List.hd blist) inexp)])
     ;;
 
-let truth_table a b expr =
-    check_all_inputs a b expr possible_inputs []
+let truth_table a b inexp =
+    check_all_inputs a b inexp possible_inputs []
 ;;
 
 (* Question 2 *)
+
+type args = {arg1:expr ; arg2:expr}
+
+and expr =
+    | Const of int
+    | Var of string
+    | Plus of args
+    | Minus of args
+    | Mult of args
+    | Div of args
+
+;;
+
+(* Question 3 *)
+
+let rec eval_expr expr =
+    match expr with
+        |Const a -> a
+        |Var _ -> 0 (*Will never come up because restrictions*)
+        |Plus ag -> eval_expr(ag.arg1) + eval_expr(ag.arg2)
+        |Minus ag -> eval_expr(ag.arg1) - eval_expr(ag.arg2)
+        |Mult ag -> eval_expr(ag.arg1) * eval_expr(ag.arg2)
+        |Div ag -> eval_expr(ag.arg1) / eval_expr(ag.arg2)
+;;
