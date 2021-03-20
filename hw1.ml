@@ -198,76 +198,15 @@ let rec add_new_term_to_subsets term n0hold n1hold curlen curset retset =
         add_new_term_to_subsets term (List.append n0hold [(List.hd curset)]) (List.append n1hold [(List.append (List.hd curset) [term])]) curlen (List.tl curset) retset
     else (*if List.length (List.hd curset) = curlen + 1 then*)
         add_new_term_to_subsets term (List.append n1hold [List.hd curset]) [List.append (List.hd curset) [term]] (curlen + 1) (List.tl curset) (List.append retset n0hold)
+;;
 
 let rec iter_all_terms_in_set plist retlist =
     if plist = [] then
         retlist
     else
         iter_all_terms_in_set (List.tl plist) (add_new_term_to_subsets (List.hd plist) [] [] 0 retlist [])
+;;
 
 let powerset plist =
     iter_all_terms_in_set plist [[]]
-;;
-
-(* Part 3 *)
-
-(* Question 1 *)
-
-type bool_expr =
-    | Lit of string
-    | Not of bool_expr
-    | And of bool_expr * bool_expr
-    | Or of bool_expr * bool_expr
-;;
-
-let possible_inputs = [(true, true); (true, false); (false, true); (false, false)]
-;;
-
-(* Returns a true/false for the entire expression *)
-let rec eval_bool a b booltup inexp =
-    match inexp with
-        |Lit x1 when x1 = a -> fst booltup
-        |Lit x2 when x2 = b -> snd booltup
-        |Lit _ -> false (*Shouldn't ever come up*)
-        |Not subexp -> not (eval_bool a b booltup subexp)
-        |And (sub1, sub2) -> (eval_bool a b booltup sub1) && (eval_bool a b booltup sub2)
-        |Or (sub1, sub2) -> (eval_bool a b booltup sub1) || (eval_bool a b booltup sub2)
-;;
-
-let rec check_all_inputs a b inexp blist retlist =
-    if blist = [] then
-        retlist
-    else
-        check_all_inputs a b inexp (List.tl blist) (List.append retlist
-        [(fst (List.hd blist), snd (List.hd blist), eval_bool a b (List.hd blist) inexp)])
-    ;;
-
-let truth_table a b inexp =
-    check_all_inputs a b inexp possible_inputs []
-;;
-
-(* Question 2 *)
-
-type args = {arg1:expr ; arg2:expr}
-
-and expr =
-    | Const of int
-    | Var of string
-    | Plus of args
-    | Minus of args
-    | Mult of args
-    | Div of args
-
-;;
-
-(* Question 3 *)
-
-let rec eval_expr expr =
-    match expr with
-        |Const a -> a
-        |Var _ -> 0 (*Will never come up because restrictions*)
-        |Plus ag -> eval_expr(ag.arg1) + eval_expr(ag.arg2)
-        |Minus ag -> eval_expr(ag.arg1) - eval_expr(ag.arg2)
-        |Mult ag -> eval_expr(ag.arg1) * eval_expr(ag.arg2)
-        |Div ag -> eval_expr(ag.arg1) / eval_expr(ag.arg2)
 ;;
